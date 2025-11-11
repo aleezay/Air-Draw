@@ -1,19 +1,24 @@
-<!doctype html>
-<html>
-<body></body>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
 <script>
-  const signaling = io("/", { transports: ["websocket"], path: "/socket.io" });
+  // Use 127.0.0.1 and allow polling fallback
+  const signaling = io("http://127.0.0.1:8080", {
+    transports: ["websocket", "polling"],
+    path: "/socket.io"
+  });
+
   const pc = new RTCPeerConnection();
 
   pc.ondatachannel = (e) => {
     const dc = e.channel;
+    dc.onopen = () => console.log("[UI] datachannel open");
     dc.onmessage = (ev) => {
-      parent.postMessage({ pluginMessage: JSON.parse(ev.data) }, "*");
+      const msg = JSON.parse(ev.data);
+      console.log("[UI] got:", msg);
+      parent.postMessage({ pluginMessage: msg }, "*");
     };
   };
 
-  pc.onicecandidate = e => e.candidate && signaling.emit("signal", { candidate: e.candidate });
+  pc.onicecandidate = (e) => e.candidate && signaling.emit("signal", { candidate: e.candidate });
 
   signaling.on("signal", async ({ sdp, type, candidate }) => {
     if (candidate) return pc.addIceCandidate(candidate);
@@ -25,4 +30,3 @@
     }
   });
 </script>
-</html>

@@ -30,6 +30,7 @@
     const signaling = io("/", { transports: ["websocket"] });
     const pc = new RTCPeerConnection();
     const dc = pc.createDataChannel("gestures", { ordered: true });
+    window.gdc = dc; // allows sending test messages from the browser console
     dc.onopen = () => console.log("[RTC] datachannel open");
 
     pc.onicecandidate = e => e.candidate && signaling.emit("signal", { candidate: e.candidate });
