@@ -1,4 +1,4 @@
-# ✋ Air-Draw
+# ✋🎨 Air-Draw
 
 Experimental hand-gesture → Figma control using MediaPipe + WebRTC + Figma Plugin.
 
